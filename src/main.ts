@@ -1,12 +1,15 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import Octokit from '@octokit/rest';
+import {IssuesAddLabelsParams} from '@octokit/rest';
 import {getIssue} from './issue';
-import { stringify } from 'querystring';
 
 async function run() {
   if(!process.env.GITHUB_REPOSITORY) {
     core.setFailed('GITHUB_REPOSITORY missing, must be set to "<repo owner>/<repo name>');
+    return;
+  }
+  if(!process.env.GITHUB_TOKEN) {
+    core.setFailed('GITHUB_TOKEN missing, must be set with ${{secrets.GITHUB_TOKEN}}');
     return;
   }
 
@@ -30,14 +33,14 @@ async function run() {
 
     console.info(`Added the label ${label} to the issue #${issue}`);
 
-    const octokit = new Octokit();
+    const octokit = new github.GitHub(process.env.GITHUB_TOKEN);
 
     await octokit.issues.addLabels({
       owner: owner,
       repo: repo,
       issue_number: issue,
       labels: [label]
-    } as Octokit.IssuesAddLabelsParams);
+    } as IssuesAddLabelsParams);
   } catch (error) {
     core.setFailed(error.message);
   }
