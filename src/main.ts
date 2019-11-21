@@ -11,8 +11,7 @@ async function run() {
 
   try {
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/")
-    const label = core.getInput('label');
-    const trigger = core.getInput('trigger')
+    const {label, trigger} = getValidInput();
     const {eventName, payload} = github.context;
     const commitMessages = payload.commits;
 
@@ -43,6 +42,19 @@ async function run() {
 function validateEvent(eventName: string) {
   if(eventName != "push") {
     throw new Error(`Only the push event is allowed, used event: ${eventName}`)
+  }
+}
+
+function getValidInput() {
+  const label = core.getInput('label');
+  const trigger = core.getInput('trigger');
+
+  if(!label || !trigger) {
+    throw new Error('No label or trigger present.');
+  }
+  return {
+    label: label,
+    trigger: trigger
   }
 }
 
