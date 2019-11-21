@@ -22,18 +22,21 @@ async function run() {
       if(issue != -1) break;
     }
 
-    if(issue == -1) return;
+    if(issue == -1) {
+      console.info("No issue found.")
+      return;
+    }
+
+    console.info(`Added the label ${label} to the issue #${issue}`);
 
     const octokit = new Octokit();
 
-    if(payload.repository != null) {
-      await octokit.issues.addLabels({
-        owner: owner,
-        repo: repo,
-        issue_number: issue,
-        labels: [label]
-      } as Octokit.IssuesAddLabelsParams);
-    }
+    await octokit.issues.addLabels({
+      owner: owner,
+      repo: repo,
+      issue_number: issue,
+      labels: [label]
+    } as Octokit.IssuesAddLabelsParams);
   } catch (error) {
     core.setFailed(error.message);
   }
