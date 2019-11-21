@@ -1,6 +1,5 @@
 name: "Test typescript-action"
 on:
-  pull_request:
   push:
     branches:
       - master
