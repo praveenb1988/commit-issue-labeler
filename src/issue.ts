@@ -15,7 +15,7 @@ export function getIssue(commitMessage: string, trigger: string): number {
 }
   
 function formatString(input: string): string {
-    return input.toLowerCase().replace(/[\s|_|\-|\n]+/g, '');
+    return input.toString().toLowerCase().replace(/[\s|_|\-|\n]+/g, '');
 }
   
 function findIssueBefore(commitMessage: string, triggerPos: number): number {
