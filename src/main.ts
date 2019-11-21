@@ -17,6 +17,7 @@ async function run() {
 
     validateEvent(eventName);
     var issue;
+    console.debug(`Commit messages: ${commitMessages}`);
     for(var commitMessage in commitMessages) {
       console.debug(`Commit message: ${commitMessage}`);
       issue = getIssue(commitMessage, trigger);
