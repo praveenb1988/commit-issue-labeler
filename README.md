@@ -1,113 +1,44 @@
-# Create a JavaScript Action using TypeScript
+# Commit Issue Labeler
 
-Use this template to bootstrap the creation of a JavaScript action.:rocket:
+This action allows you to add a label on a push event. For this you can specify
+a trigger word you want to use in the commit message and the label you want to
+add to the issue.
 
-This template includes compilication support, tests, a validation workflow, publishing, and versioning guidance.  
+## Usage
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+Create a new label or use one of the default you want to add to the issues with
+the trigger word.
 
-## Create an action from this template
+Create a new workflow `.yml` file in the `.github/workflows/` folder. In this new created file you have to specify the trigger word as well as the name of the label.
 
-Click the `Use this Template` and provide the new repo details for your action
+### testing-label-on-commit.yml
+```yml
+name: Add testing label on issue
 
-## Code in Master
+on: push
 
-Install the dependencies  
-```bash
-$ npm install
+jobs:
+  add-testing-label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: korti11/commit-issue-labeler@v0.1
+        with:
+          label: testing
+          trigger: ready for testing
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 ```
 
-Build the typescript
-```bash
-$ npm run build
-```
+### Options
 
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
+#### label
+The label can be what ever label exists in the repository.
 
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml contains defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos.  We will create a releases branch and only checkin production modules (core in this case). 
-
-Comment out node_modules in .gitignore and create a releases/v1 branch
-```bash
-# comment out in distribution branches
-# node_modules/
-```
-
-```bash
-$ git checkout -b releases/v1
-$ git commit -a -m "prod dependencies"
-```
-
-```bash
-$ npm prune --production
-$ git add node_modules
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing the releases/v1 branch
-
-```yaml
-uses: actions/typescript-action@releases/v1
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and tested action
-
-```yaml
-uses: actions/typescript-action@v1
-with:
-  milliseconds: 1000
-```
+#### trigger
+The trigger word can be only one word or multiples. It also supports camel case,
+kebab case and snake case. So feel free to use what ever you prefer.<br>
+##### Example commit messages
+`Last commit. #12 ready for testing.`<br>
+`Last commit. Ready for testing #12.`<br>
+`Last commit. Ready for testing: #12.`<br>
+`Last commit. Ready_for_testing #12`<br>
