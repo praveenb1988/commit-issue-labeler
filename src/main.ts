@@ -1,19 +1,51 @@
 import * as core from '@actions/core';
-import {wait} from './wait'
+import * as github from '@actions/github';
+import Octokit from '@octokit/rest';
+import {getIssue} from './issue';
 
 async function run() {
+  if(!process.env.GITHUB_REPOSITORY) {
+    core.setFailed('GITHUB_REPOSITORY missing, must be set to "<repo owner>/<repo name>');
+    return;
+  }
+
   try {
-    const ms = core.getInput('milliseconds');
-    console.log(`Waiting ${ms} milliseconds ...`)
+    const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/")
+    const label = core.getInput('label');
+    const trigger = core.getInput('trigger')
+    const {eventName, payload} = github.context;
+    const commitMessages = payload.commits;
 
-    core.debug((new Date()).toTimeString())
-    await wait(parseInt(ms, 10));
-    core.debug((new Date()).toTimeString())
+    validateEvent(eventName);
+    var issue;
+    for(var commitMessage in commitMessages) {
+      issue = getIssue(commitMessage, trigger);
+      if(issue != -1) break;
+    }
 
-    core.setOutput('time', new Date().toTimeString());
+    if(issue == -1) return;
+
+    const octokit = new Octokit();
+
+    if(payload.repository != null) {
+      await octokit.issues.addLabels({
+        owner: owner,
+        repo: repo,
+        issue_number: issue,
+        labels: [label]
+      } as Octokit.IssuesAddLabelsParams);
+    }
   } catch (error) {
     core.setFailed(error.message);
   }
 }
+
+function validateEvent(eventName: string) {
+  if(eventName != "push") {
+    throw new Error(`Only the push event is allowed, used event: ${eventName}`)
+  }
+}
+
+
 
 run();

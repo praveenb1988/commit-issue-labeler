@@ -1,10 +1,16 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Commit Issue Labeler'
+description: 'Label a issue with a trigger word from a commit message.'
+author: 'Korti'
 inputs:
-  myInput:              # change this
-    description: 'input description here'
-    default: 'default value if applicable'
+  trigger:
+    description: 'Trigger word to search for.'
+    required: true
+  label:
+    description: 'Label that should be added to the issue.'
+    required: true
 runs:
   using: 'node12'
   main: 'lib/main.js'
+branding:
+  icon: tag
+  color: green
