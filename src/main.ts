@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import Octokit from '@octokit/rest';
 import {getIssue} from './issue';
+import { stringify } from 'querystring';
 
 async function run() {
   if(!process.env.GITHUB_REPOSITORY) {
@@ -17,9 +18,7 @@ async function run() {
 
     validateEvent(eventName);
     var issue;
-    console.debug(`Commit messages: ${commitMessages}`);
-    for(var commitMessage in commitMessages) {
-      console.debug(`Commit message: ${commitMessage}`);
+    for(var commitMessage of commitMessages) {
       issue = getIssue(commitMessage, trigger);
       if(issue != -1) break;
     }
