@@ -1,27 +1,58 @@
-import {wait} from '../src/wait'
+import {getIssue} from '../src/issue'
 import * as process from 'process'
 import * as cp from 'child_process'
 import * as path from 'path'
 
-test('throws invalid number', async() => {
-    const input = parseInt('foo', 10);
-    await expect(wait(input)).rejects.toThrow('milleseconds not a number');
+test('issue number before trigger word', async() => {
+    const message = "Last commit. #12 ready for testing.";
+    const trigger = "ready for testing";
+    expect(getIssue(message, trigger)).toBe(12);
 });
 
-test('wait 500 ms', async() => {
-    const start = new Date();
-    await wait(500);
-    const end = new Date();
-    var delta = Math.abs(end.getTime() - start.getTime());
-    expect(delta).toBeGreaterThan(450);
+test('issue number after trigger word', async() => {
+    const message = "Last commit. Ready for testing #12.";
+    const trigger = "Ready for testing";
+    expect(getIssue(message, trigger)).toBe(12);
 });
 
-// shows how the runner will run a javascript action with env / stdout protocol
-test('test runs', () => {
-    process.env['INPUT_MILLISECONDS'] = '500';
-    const ip = path.join(__dirname, '..', 'lib', 'main.js');
-    const options: cp.ExecSyncOptions = {
-        env: process.env
-    };
-    console.log(cp.execSync(`node ${ip}`, options).toString());
+test('issue number after trigger word with :', async() => {
+    const message = "Last commit. Ready for testing: #12";
+    const trigger = "Ready for testing";
+    expect(getIssue(message, trigger)).toBe(12);
 });
+
+test('issue number trigger not exactly equal', async() => {
+    const message = "Last commit. #12 ready for testing.";
+    const trigger = "Ready for testing";
+    expect(getIssue(message, trigger)).toBe(12);
+});
+
+test('issue number trigger camel case', async() => {
+    const message = "Last commit. #12 ready for testing.";
+    const trigger = "ReadyForTesting";
+    expect(getIssue(message, trigger)).toBe(12);
+});
+
+test('issue number trigger kebab case', async() => {
+    const message = "Last commit. #12 ready for testing.";
+    const trigger = "ready-for-testing";
+    expect(getIssue(message, trigger)).toBe(12);
+});
+
+test('issue number trigger snake case', async() => {
+    const message = "Last commit. #12 ready for testing.";
+    const trigger = "ready_for_testing";
+    expect(getIssue(message, trigger)).toBe(12);
+});
+
+test('trigger not found', async() => {
+    const message = "Last commit.";
+    const trigger = "ready for testing";
+    expect(getIssue(message, trigger)).toBe(-1);
+});
+
+test('issue number not found', async() => {
+    const message = "Last commit. Ready for testing.";
+    const trigger = "ready for testing";
+    expect(() => {getIssue(message, trigger)}).toThrowError("Found the trigger word but no issue number is provided.")
+})
