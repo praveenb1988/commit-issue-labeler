@@ -1,4 +1,4 @@
-name: "Test typescript-action"
+name: "Test typescript-actions"
 on:
   push:
     branches:
